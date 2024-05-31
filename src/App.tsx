@@ -6,7 +6,6 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs"; // from https://www.n
 import "react-tabs/style/react-tabs.css";
 import InfoPanel from "./components/InfoPanel";
 import { ReactP5Wrapper } from "@p5-wrapper/react";
-import Sketch from "./components/Sketch"; // from https://shivanshbakshi.dev/blog/p5-react/integrate-p5-with-react/
 
 function App() {
   const path = "src/assets/artwork.png"; // hard-coded for now
@@ -15,8 +14,7 @@ function App() {
   const currProps = {
     title: "Rotating Rectangle",
     artist: "Shivansh Bakshi",
-    description:
-      "Peaceful, medidative, colourful. What else could you desire?",
+    description: "Peaceful, medidative, colourful. What else could you desire?",
   };
 
   return (
@@ -24,11 +22,7 @@ function App() {
       <div className="container">
         <div className="row">
           <div className="col">
-            <div className="sketchContainer">
-              <div className="sketch">
-                <ReactP5Wrapper sketch={Sketch} />
-              </div>
-            </div>
+            <iframe src="http://localhost:5173/src/sketch.html"></iframe>
           </div>
           <div className="col">
             <Tabs>
@@ -46,7 +40,10 @@ function App() {
               </TabPanel>
               <TabPanel>
                 <h2>... various cool settings ...</h2>
-                <p>Image uploads, camera feed, audio feed, sliders, random seeds, etc, etc</p>
+                <p>
+                  Image uploads, camera feed, audio feed, sliders, random seeds,
+                  etc, etc
+                </p>
               </TabPanel>
             </Tabs>
           </div>

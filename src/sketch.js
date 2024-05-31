@@ -1,79 +1,77 @@
-var numRows = 15;
-var numCols = 15;
-var rowHeight;
-var rows = [];
-var rs = 1;
-var rowSpeed = [];
-var rowOffset = [];
-var minSpeed = 2.4;
-var maxSpeed = 5.0;
+/*
+Weird Planktons
+author: Peter Liley
+15/12/21
+*/
 
+let wanderers = [];
+let num = 100;
+let size = 4; // size of each wanderer
 
 function setup() {
-  let canvas = createCanvas(500, 500);
-  canvas.parent('sketchContainer');
-  frameRate(30);
+  createCanvas(windowWidth, windowHeight);
+  background(255);
   noStroke();
-  ellipseMode(CORNER);
-
-  rowHeight = height / numRows;
-  //for now, we assume a square canvas
-  resetRows();
-}
-
-function resetRows() {
-  for (let i = 0; i < numRows; i++) {
-    rows[i] = [];
-    for (let j = 0; j < numCols + 1; j++) {
-      // 0    - 0.25  = ellipse
-      // 0.25 - 0.5   = rect
-      // 0.5  - 0.75  = triangle
-      // 0.75 - 1     = nothing
-      rows[i][j] = random();
-    }
-  }
-  for(let i = 0; i < numRows; i++) {
-    //rowSpeed[i] = random(minSpeed, maxSpeed);
-    rowSpeed[i] = 0.5 + (i*1) + (random(-0.2, 0.2));
-    rowOffset[i] = 0;
+  for(i = 0; i < num; i++){
+    wanderers.push(new Wanderer(i));
   }
 }
 
 function draw() {
-  background('#780116');
-  for(let i = 0; i < numRows; i++) {
-    for(let j = 0; j < numCols + 1; j++) {
-      let x = ((j*rowHeight) + rowOffset[i]) % (width + rowHeight) - rowHeight;
-      let y = i*rowHeight;
-      //let size = map(rowSpeed[i], minSpeed, maxSpeed, 0.5*rowHeight, rowHeight);
-      let size = rowHeight;
-      drawShape(rows[i][j], x, y, size);
-    }
-    rowOffset[i] = (rowOffset[i] + rowSpeed[i]) % (width + rowHeight);
-  }
-
+  colorMode(RGB);
+  background(0, 60, 150, 100); // deep ocean blue!
+  wanderers.forEach(element => {
+    element.update();
+  });
 }
 
-function drawShape(value, x, y, size) {``
-  if(value < 0.15) {
-    fill('#F7B538');
-    ellipse(x, y, size);
-  }
-  else if(value < 0.3) {
-    fill('#DB7C26');
-    rect(x, y, size);
-  }
-  else if(value < 0.45) {
-    fill('#D8572A');
-    triangle(x+(size/2), y, x, y+size, x+size, y+size);
-  }
-  else if(value < 0.6) {
-    fill('#C32F27');
-    arc(x, y, size, size, HALF_PI, PI + HALF_PI)
-  }
-}
 
-function mousePressed(fxn) {
-  randomSeed(++rs);
-  resetRows();
+class Wanderer {
+  constructor(seed=0){
+
+    this.nx = seed+0.01; // largely offset x seed to make left-right motion highly varied
+    this.ny = seed/num+10.01; // small offset y seed to make up-down motion more unified
+    this.interval = 0.01; // noise step
+    
+    this.x = random(0, width);
+    this.y = random(0, height);
+    this.xprev = this.x;
+    this.yprev = this.y;
+
+    this.size = size; // universal size at top of programme
+    this.marchSpeed = 5;
+  }
+
+  update(){
+    ellipse(this.x, this.y, this.size);
+    this.move();
+    this.chooseColour();
+    this.nx += this.interval;
+    this.ny += this.interval;
+  }
+
+  /**
+   * Move each wanderer based on noise, and constrain to on-screen
+   */
+  move(){
+    if(this.x >= width) this.x = 0;
+    if(this.x < 0) this.x = width;
+    if(this.y >= height) this.y = 0;
+    if(this.y < 0) this.y = height;
+    this.y -= map(noise(this.ny), 0, 1, -this.marchSpeed, this.marchSpeed);
+    this.x -= map(noise(this.nx), 0, 1, -this.marchSpeed, this.marchSpeed);
+  }
+  
+  /**
+   * Change wanderer colour according to 'speed'
+   * (i.e. distance between current and previous position)
+   */
+  chooseColour(){
+    this.d = dist(this.x, this.y, this.xprev, this.yprev);
+    this.c = map(this.d, 0, 3, 300, 150);
+    colorMode(HSB);
+    fill(this.c, 195, 255);
+    this.xprev = this.x;
+    this.yprev = this.y;
+  }
 }
